@@ -9,7 +9,61 @@ export default function ChatRoom({ user }: any) {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-  const [activeChannel, setActiveChannel] = useState("Support Admin");
+
+  const [staff] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_staff") || "[]"));
+  const [students] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_users") || "[]"));
+
+  const CONTACTS = user?.isAdmin
+    ? [
+        ...students.map(s => ({ id: s.id, type: 'u', name: s.name, role: "Élève" })),
+        ...staff.map(t => ({ id: t.id, type: 's', name: t.name, role: "Enseignant/Maîtresse" }))
+      ]
+    : user?.isTeacher
+      ? [
+          { id: "admin", type: 'a', name: "Support Admin", role: "Directeur" },
+          ...students.map(s => ({ id: s.id, type: 'u', name: s.name, role: "Élève" }))
+        ]
+      : [
+          { id: "admin", type: 'a', name: "Support Admin", role: "Directeur" },
+          ...staff.map(t => ({ id: t.id, type: 's', name: t.name, role: "Maîtresse" }))
+        ];
+
+  const [activeContact, setActiveContact] = useState(CONTACTS[0]);
+  const [viewingGlobalRoom, setViewingGlobalRoom] = useState<string | null>(null);
+
+  // Generate unique Room ID for 1-to-1 conversation
+  const getRoomId = (contactId: string | number) => {
+    const myId = user?.id || "anonymous";
+    const ids = [String(myId), String(contactId)].sort();
+    return `private_room_${ids[0]}_${ids[1]}`;
+  };
+
+  const getGlobalRooms = () => {
+    if (!user?.isAdmin) return [];
+    return Object.keys(localStorage)
+      .filter(key => key.startsWith('chat_private_room_'))
+      .map(key => {
+        const roomId = key.replace('chat_', '');
+        const parts = roomId.replace('private_room_', '').split('_');
+        // Try to identify names from IDs
+        const getName = (id: string) => {
+          if (id === 'admin') return "Admin";
+          const s = students.find(x => String(x.id) === id);
+          if (s) return s.name;
+          const t = staff.find(x => String(x.id) === id);
+          if (t) return t.name;
+          return id;
+        };
+        return {
+          id: roomId,
+          name: `${getName(parts[0])} ↔ ${getName(parts[1])}`,
+          participants: parts
+        };
+      });
+  };
+
+  const currentRoom = viewingGlobalRoom || getRoomId(activeContact?.id || "admin");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onConnect() { setIsConnected(true); }
@@ -24,47 +78,39 @@ export default function ChatRoom({ user }: any) {
     };
   }, []);
 
-  // Load messages from localStorage when contact changes
+  // Load messages from localStorage when room changes
   useEffect(() => {
-    const saved = localStorage.getItem(`chat_${activeChannel}`);
+    const saved = localStorage.getItem(`chat_${currentRoom}`);
     if (saved) {
       setMessages(JSON.parse(saved));
     } else {
       setMessages([]);
     }
-  }, [activeChannel]);
+  }, [currentRoom]);
 
   // Save messages to localStorage when they change
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem(`chat_${activeChannel}`, JSON.stringify(messages));
+      localStorage.setItem(`chat_${currentRoom}`, JSON.stringify(messages));
     }
-  }, [messages, activeChannel]);
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const [staff] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_staff") || "[]"));
-
-  const CONTACTS = [
-    { name: "Support Admin", role: "Directeur" },
-    ...staff.map(s => ({ name: s.name, role: s.role + (s.subject ? " " + s.subject : "") }))
-  ];
+  }, [messages, currentRoom]);
 
   useEffect(() => {
-    socket.emit("join-room", activeChannel);
+    socket.emit("join-room", currentRoom);
 
     socket.on("receive-message", (msg) => {
-      setMessages((prev) => {
-        // Prevent duplicate messages if already added optimistically
-        if (prev.some(m => m.text === msg.text && m.timestamp === msg.timestamp)) return prev;
-        return [...prev, msg];
-      });
+      if (msg.room === currentRoom) {
+        setMessages((prev) => {
+          if (prev.some(m => m.text === msg.text && m.timestamp === msg.timestamp)) return prev;
+          return [...prev, msg];
+        });
+      }
     });
 
     return () => {
       socket.off("receive-message");
     };
-  }, [activeChannel]);
+  }, [currentRoom]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
@@ -75,7 +121,7 @@ export default function ChatRoom({ user }: any) {
     if (!input.trim()) return;
 
     const newMessage = {
-      room: activeChannel,
+      room: currentRoom,
       text: input,
       senderName: user?.name || "Élève Anonymous",
       timestamp: new Date().toISOString(),
@@ -89,9 +135,9 @@ export default function ChatRoom({ user }: any) {
     if (input.toLowerCase().includes("bonjour") || input.toLowerCase().includes("test")) {
       setTimeout(() => {
         const reply = {
-          room: activeChannel,
+          room: currentRoom,
           text: `Bonjour ${user?.name || "Élève"} ! Comment puis-je vous aider aujourd'hui ?`,
-          senderName: activeChannel,
+          senderName: activeContact.name,
           timestamp: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, reply]);
@@ -109,20 +155,48 @@ export default function ChatRoom({ user }: any) {
           <h2 className="text-xl font-black uppercase tracking-tight text-primary">Messages</h2>
         </div>
         <div className="flex-grow overflow-y-auto p-4 space-y-2">
+          {user?.isAdmin && (
+            <div className="mb-6">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-4">Supervision (Toutes les discussions)</div>
+              <div className="space-y-2">
+                {getGlobalRooms().map(room => (
+                  <button
+                    key={room.id}
+                    onClick={() => {
+                      setViewingGlobalRoom(room.id);
+                      setActiveContact(null);
+                    }}
+                    className={cn(
+                      "w-full flex items-center gap-4 p-3 rounded-2xl transition-all",
+                      viewingGlobalRoom === room.id ? "bg-primary text-white shadow-lg" : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                    )}
+                  >
+                    <div className="text-xs font-bold truncate">{room.name}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="h-px bg-slate-100 my-6 mx-4" />
+            </div>
+          )}
+
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-4">Mes Contacts</div>
           {CONTACTS.map((contact) => (
             <button
-              key={contact.name}
-              onClick={() => setActiveChannel(contact.name)}
+              key={`${contact.type}_${contact.id}`}
+              onClick={() => {
+                setActiveContact(contact);
+                setViewingGlobalRoom(null);
+              }}
               className={cn(
                 "w-full flex items-center gap-4 p-4 rounded-3xl transition-all group",
-                activeChannel === contact.name 
+                activeContact?.id === contact.id && activeContact?.type === contact.type && !viewingGlobalRoom
                   ? "bg-white shadow-md shadow-slate-200/50 scale-102" 
                   : "hover:bg-white/50"
               )}
             >
               <div className={cn(
                 "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-white transition-all",
-                activeChannel === contact.name ? "bg-primary" : "bg-slate-300"
+                activeContact?.id === contact.id && activeContact?.type === contact.type ? "bg-primary" : "bg-slate-300"
               )}>
                 {contact.name[0]}
               </div>
@@ -143,10 +217,12 @@ export default function ChatRoom({ user }: any) {
         <div className="p-6 border-b border-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-primary/5 text-primary rounded-2xl flex items-center justify-center font-black">
-              {activeChannel[0]}
+              {viewingGlobalRoom ? "∑" : activeContact?.name[0]}
             </div>
             <div>
-              <div className="font-bold text-lg">{activeChannel}</div>
+              <div className="font-bold text-lg">
+                {viewingGlobalRoom ? getGlobalRooms().find(r => r.id === viewingGlobalRoom)?.name : activeContact?.name}
+              </div>
               <div className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
                 <span className={cn("w-1.5 h-1.5 rounded-full", isConnected ? "bg-green-500 animate-pulse" : "bg-red-500")} />
                 {isConnected ? "En ligne" : "Déconnecté"}
@@ -165,7 +241,7 @@ export default function ChatRoom({ user }: any) {
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                 <MessageSquare className="text-slate-200" size={32} />
               </div>
-              <p className="text-slate-400 italic text-sm">Démarrer la discussion avec {activeChannel}...</p>
+              <p className="text-slate-400 italic text-sm">Démarrer la discussion avec {activeContact?.name}...</p>
             </div>
           )}
           {messages.map((msg, i) => {

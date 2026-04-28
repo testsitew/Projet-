@@ -28,6 +28,8 @@ import { Logo, Button } from "./components/UI";
 import DocumentsPage from "./pages/DocumentsPage";
 import ChatRoom from "./components/ChatRoom";
 import AdminDashboard from "./pages/AdminDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import { Calendar, Clock, ShieldCheck } from "lucide-react";
 
 // --- Components ---
 
@@ -42,11 +44,18 @@ const Navbar = ({ user, onLogout, customLogo }: any) => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-accent hover:text-primary font-bold uppercase text-sm tracking-wide">Accueil</Link>
-          <Link to="/documents" className="text-accent hover:text-primary font-bold uppercase text-sm tracking-wide">Documents</Link>
-          <Link to="/tarifs" className="text-accent hover:text-primary font-bold uppercase text-sm tracking-wide">Tarifs</Link>
-          {user && <Link to="/chat" className="text-accent hover:text-primary font-bold uppercase text-sm tracking-wide">Chat</Link>}
+        <div className="hidden md:flex items-center gap-6 overflow-x-auto custom-scrollbar">
+          <Link to="/" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap">Accueil</Link>
+          <a href="/#enfants" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap">Session pour Enfants</a>
+          <a href="/#femmes" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap">Session pour Femmes</a>
+          <a href="/#temoignages" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap">Témoignages</a>
+          <a href="/#equipe" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap text-nowrap">Equipe et Valeur</a>
+          {user && (
+            <Link to="/chat" className="text-accent hover:text-primary font-bold uppercase text-[10px] tracking-widest whitespace-nowrap flex items-center gap-1.5 relative">
+              Chat
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-sm shadow-red-500/50" title="Nouveau message"></span>
+            </Link>
+          )}
           {user ? (
             <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-full border border-slate-200">
               {user.isAdmin && (
@@ -54,7 +63,12 @@ const Navbar = ({ user, onLogout, customLogo }: any) => {
                   Admin
                 </Link>
               )}
-              <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full font-bold text-sm shadow-md">
+              {user.isTeacher && (
+                <Link to="/teacher" className="px-4 py-2 text-accent hover:text-primary font-black uppercase text-xs border-r border-slate-200">
+                  Maîtresse
+                </Link>
+              )}
+              <Link to={user.isTeacher ? "/teacher" : user.isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full font-bold text-sm shadow-md">
                 <LayoutDashboard size={16} /> DASHBOARD
               </Link>
               <button onClick={onLogout} className="p-2 text-slate-400 hover:text-red-500 transition-colors">
@@ -87,9 +101,15 @@ const Navbar = ({ user, onLogout, customLogo }: any) => {
             className="md:hidden bg-white border-b border-slate-200 p-4 flex flex-col gap-4 font-medium"
           >
             <Link to="/" onClick={() => setIsOpen(false)}>Accueil</Link>
-            <Link to="/documents" onClick={() => setIsOpen(false)}>Documents</Link>
-            <Link to="/tarifs" onClick={() => setIsOpen(false)}>Tarifs</Link>
-            {user && <Link to="/chat" onClick={() => setIsOpen(false)}>Chat</Link>}
+            <a href="/#enfants" onClick={() => setIsOpen(false)}>Session pour Enfants</a>
+            <a href="/#femmes" onClick={() => setIsOpen(false)}>Session pour Femmes</a>
+            <a href="/#temoignages" onClick={() => setIsOpen(false)}>Témoignages</a>
+            <a href="/#equipe" onClick={() => setIsOpen(false)}>Equipe et Valeur</a>
+            <Link to="/chat" className="flex items-center justify-between">
+            <span>Chat</span>
+            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+          </Link>
+            <Link to="/tarifs" onClick={() => setIsOpen(false)}>Nos Tarifs</Link>
             {user ? (
               <>
                 <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
@@ -113,14 +133,25 @@ const Navbar = ({ user, onLogout, customLogo }: any) => {
 // --- Pages ---
 
 const LandingPage = () => {
-  const [tariffs, setTariffs] = useState<any[]>(() => {
-    const saved = localStorage.getItem("m_tariffs");
-    if (saved) return JSON.parse(saved);
-    return [
-      { name: "Base", price: "29€", features: ["Accès aux documents", "Soutien par mail", "1 cours live / mois"], popular: false },
-      { name: "Premium", price: "59€", features: ["Tout le pack Base", "Chat illimité profs", "Cours live illimités"], popular: true },
-    ];
-  });
+  const [tariffs, setTariffs] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_tariffs") || "[]"));
+  const [testimonials] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_testimonials") || "[]"));
+  const [sections] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_sections") || "[]"));
+  const [gallery] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_gallery") || "[]"));
+  const [contact] = useState<any>(() => JSON.parse(localStorage.getItem("m_contact") || JSON.stringify({
+    phone: "+216 22 000 000",
+    email: "contact@merkez.tn",
+    address: "Tunis, Tunisie",
+    facebook: "#",
+    instagram: "#"
+  })));
+
+  if (tariffs.length === 0) {
+    // Basic fallback if empty
+    setTariffs([
+      { name: "Base", price: "29€", features: ["Accès aux documents", "Soutien par mail"], popular: false },
+      { name: "Premium", price: "59€", features: ["Tout illimité"], popular: true },
+    ]);
+  }
 
   return (
     <div className="flex flex-col">
@@ -144,9 +175,11 @@ const LandingPage = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/register">
-                <Button className="h-14 px-10 text-lg">Commencer maintenant</Button>
+                <Button className="h-14 px-10 text-lg shadow-xl shadow-primary/20">Commencer maintenant</Button>
               </Link>
-              <Button variant="outline" className="h-14 px-10 text-lg">Voir les cours</Button>
+              <Link to="/tarifs">
+                <Button variant="outline" className="h-14 px-10 text-lg border-slate-200">Voir les Tarifs</Button>
+              </Link>
             </div>
           </motion.div>
           
@@ -177,7 +210,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Stats Section */}
       <section className="bg-slate-50 py-16 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
@@ -193,6 +226,89 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
+
+      {/* Site Sections (Sessions Enfants, Femmes, Orthophonie) */}
+      <section id="enfants" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-12">
+            {sections.map((s, i) => (
+              <motion.div 
+                key={i} 
+                id={s.id === 'kids' ? 'enfants' : s.id === 'women' ? 'femmes' : 'ortho'}
+                whileHover={{ y: -10 }}
+                className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 shadow-sm"
+              >
+                <div className="w-16 h-16 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mb-8">
+                   {s.id === 'kids' && <Users size={32} />}
+                   {s.id === 'women' && <ShieldCheck size={32} />}
+                   {s.id === 'ortho' && <MessageSquare size={32} />}
+                </div>
+                <h3 className="text-2xl font-black mb-2 uppercase tracking-tighter">{s.title}</h3>
+                <p className="text-primary font-bold text-xs uppercase tracking-widest mb-4 italic">{s.subtitle}</p>
+                <p className="text-slate-600 leading-relaxed text-sm mb-6">{s.content}</p>
+                <Link to="/register" className="text-accent font-bold hover:underline inline-flex items-center gap-2">
+                   En savoir plus <ChevronRight size={16} />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team & Values Section */}
+      <section id="equipe" className="py-24 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+             <div>
+                <h2 className="text-4xl font-black uppercase tracking-tight mb-8">Notre Équipe & Nos Valeurs</h2>
+                <div className="space-y-8">
+                   {[
+                     { title: "Excellence Pédagogique", desc: "Une équipe diplômée et passionnée par la réussite de chaque élève." },
+                     { title: "Épanouissement", desc: "Un cadre bienveillant favorisant la confiance en soi et le plaisir d'apprendre." },
+                     { title: "Innovation", desc: "Des outils modernes et des méthodes interactives pour un apprentissage efficace." }
+                   ].map((v, i) => (
+                     <div key={i} className="flex gap-6">
+                        <div className="w-12 h-12 bg-secondary/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-secondary">
+                           <div className="font-black text-xs uppercase tracking-tighter">0{i+1}</div>
+                        </div>
+                        <div>
+                           <h4 className="font-bold text-lg mb-1 uppercase tracking-tight">{v.title}</h4>
+                           <p className="text-slate-500 italic text-sm">{v.desc}</p>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+             </div>
+             <div className="grid grid-cols-2 gap-4">
+                <div className="aspect-[4/5] bg-slate-100 rounded-[40px] overflow-hidden shadow-2xl">
+                   <img src="https://images.unsplash.com/photo-1577896851231-70ef14603e80?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover" alt="Equipe" />
+                </div>
+                <div className="aspect-[4/5] bg-slate-100 rounded-[40px] overflow-hidden mt-12 shadow-2xl">
+                   <img src="https://images.unsplash.com/photo-1544717297-fa1570596471?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover" alt="Valeurs" />
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      {gallery.length > 0 && (
+        <section className="py-24 bg-slate-50/50">
+           <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-16">
+                 <h2 className="text-4xl font-black uppercase tracking-tight mb-4">Notre Centre en Images</h2>
+                 <p className="text-slate-500 italic">Découvrez nos locaux et notre environnement de travail.</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 {gallery.slice(0, 8).map((img, i) => (
+                   <div key={i} className="aspect-square rounded-[32px] overflow-hidden border border-white shadow-lg">
+                      <img src={img.url} className="w-full h-full object-cover transition-transform hover:scale-110 duration-700" alt="Gallery" />
+                   </div>
+                 ))}
+              </div>
+           </div>
+        </section>
+      )}
 
       {/* Pricing / Tarifs */}
       <section id="tarifs" className="py-24 bg-white">
@@ -239,34 +355,60 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      {testimonials.length > 0 && (
+        <section id="temoignages" className="py-24 bg-accent text-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="text-center mb-16">
+               <h2 className="text-4xl font-black uppercase tracking-tight mb-4">Témoignages</h2>
+               <p className="text-slate-300 italic">Ce que disent nos élèves et leurs parents.</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+               {testimonials.map((t, i) => (
+                 <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="bg-white/10 backdrop-blur-md p-10 rounded-[40px] border border-white/10"
+                 >
+                    <p className="text-lg italic mb-8">"{t.content}"</p>
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center font-bold text-black uppercase">
+                          {t.name[0]}
+                       </div>
+                       <div>
+                          <div className="font-bold uppercase tracking-tight">{t.name}</div>
+                          <div className="text-xs text-secondary font-black uppercase tracking-widest">{t.role}</div>
+                       </div>
+                    </div>
+                 </motion.div>
+               ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
 
 const Dashboard = ({ user }: any) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) navigate("/login");
+  }, [user, navigate]);
+
   const [subjects, setSubjects] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_subjects") || "[]"));
   const [activeView, setActiveView] = useState("overview");
 
-  const [materials] = useState([
-    { id: 1, title: "Support de Cours - Unité 1", subject: "Anglais", type: "PDF Consult" },
-    { id: 2, title: "Fiches de Révision - Chapitre 4", subject: "Maths", type: "PDF Consult" },
-  ]);
+  const [materials] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_materials") || "[]"));
+  const [recordings] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_recordings") || "[]"));
+  const [corrections] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_corrections") || "[]"));
+  const [schedule] = useState<any[]>(() => JSON.parse(localStorage.getItem("m_schedule") || "[]"));
 
-  const [recordings] = useState([
-    { id: 1, title: "Session Live - Grammaire", date: "2024-04-20", duration: "45 min" },
-    { id: 2, title: "Correction TD 3 - Algèbre", date: "2024-04-22", duration: "1h 10min" },
-  ]);
-
-  const [corrections] = useState([
-    { id: 1, title: "Correction Examen Blanc Français", date: "2024-04-25" },
-    { id: 2, title: "Corrigé Devoir Surveillé Maths", date: "2024-04-26" },
-  ]);
-
-  if (!user) {
-    useEffect(() => { navigate("/login"); }, []);
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
@@ -299,6 +441,33 @@ const Dashboard = ({ user }: any) => {
       {activeView === "overview" && (
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
+            {/* Schedule Section */}
+            {schedule.length > 0 && (
+              <div className="bg-white p-8 rounded-[40px] border-l-8 border-secondary shadow-sm">
+                <h3 className="font-black text-xl mb-6 uppercase flex items-center gap-2">
+                  <Calendar size={20} className="text-secondary" /> Prochain cours Live
+                </h3>
+                <div className="space-y-4">
+                  {schedule.slice(0, 2).map((s: any) => (
+                    <div key={s.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center font-black text-primary uppercase text-xs">
+                          {s.day.substring(0, 3)}
+                        </div>
+                        <div>
+                          <div className="font-bold">{s.subject}</div>
+                          <div className="text-xs text-slate-500 flex items-center gap-1 font-black uppercase tracking-widest">
+                            <Clock size={12} /> {s.time}
+                          </div>
+                        </div>
+                      </div>
+                      <Button variant="outline" className="text-[10px] h-8 px-4 font-black uppercase">Rejoindre</Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Subjects / Matières Grid */}
             <div>
               <h3 className="font-black text-xl mb-6 uppercase flex items-center gap-2">
@@ -340,6 +509,55 @@ const Dashboard = ({ user }: any) => {
           </div>
 
           <div className="space-y-8">
+            {/* Dynamic Mailbox/Messages Section */}
+            <div className="bg-white p-8 rounded-[40px] border-l-8 border-primary shadow-sm hover:shadow-md transition-all">
+               <h3 className="font-black text-xl mb-4 uppercase flex items-center gap-2">
+                 <MessageSquare size={20} className="text-primary" /> Boîte aux lettres
+               </h3>
+               <div className="space-y-4">
+                  {(() => {
+                    const myId = user?.id;
+                    if (!myId) return null;
+                    
+                    const rooms = Object.keys(localStorage).filter(key => 
+                      key.startsWith('chat_private_room_') && key.includes(String(myId))
+                    );
+
+                    const allMyMessages: any[] = [];
+                    rooms.forEach(roomKey => {
+                      const messages = JSON.parse(localStorage.getItem(roomKey) || "[]");
+                      messages.forEach((m: any) => {
+                        if (m.senderName !== user.name) {
+                          allMyMessages.push(m);
+                        }
+                      });
+                    });
+
+                    allMyMessages.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                    if (allMyMessages.length === 0) {
+                      return (
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 opacity-60">
+                          <p className="text-xs text-slate-500 italic">Aucun nouveau message pour le moment.</p>
+                        </div>
+                      );
+                    }
+                    return allMyMessages.slice(0, 2).map((m: any, i: number) => (
+                      <div key={i} className={cn(
+                        "p-4 rounded-2xl border transition-all",
+                        i === 0 ? "bg-primary/5 border-primary/10" : "bg-slate-50 border-slate-100 opacity-80"
+                      )}>
+                        <p className="text-sm font-bold text-slate-800 mb-1">De: {m.senderName}</p>
+                        <p className="text-xs text-slate-500 italic mb-3 line-clamp-2">"{m.text}"</p>
+                        <Link to="/chat">
+                          <Button variant="outline" className="w-full text-[10px] h-8 font-black uppercase">Répondre</Button>
+                        </Link>
+                      </div>
+                    ));
+                  })()}
+               </div>
+            </div>
+
             <div className="bg-accent text-white p-8 rounded-[40px] shadow-2xl relative overflow-hidden group">
               <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/5 rounded-full blur-3xl" />
               <h3 className="text-2xl font-black mb-4 uppercase leading-none tracking-tighter">Support Technique</h3>
@@ -421,40 +639,87 @@ const Dashboard = ({ user }: any) => {
 // --- Main App ---
 
 function AppContent() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(() => {
+    const saved = localStorage.getItem("m_user");
+    return saved ? JSON.parse(saved) : null;
+  });
   const [customLogo, setCustomLogo] = useState<string | null>(() => localStorage.getItem("m_logo"));
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (customLogo) {
+    if (user) {
+      localStorage.setItem("m_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("m_user");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (customLogo !== null) {
       localStorage.setItem("m_logo", customLogo);
+    } else {
+      localStorage.removeItem("m_logo");
     }
   }, [customLogo]);
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem("m_user");
     navigate("/");
   };
 
   const handleLogin = (e: any) => {
     e.preventDefault();
-    const emailInput = e.target.querySelector('input[type="email"]');
-    const nameInput = e.target.querySelector('input[type="text"]');
-    const email = emailInput?.value || "";
-    const name = nameInput?.value || email.split('@')[0];
+    const email = e.target.querySelector('input[type="email"]')?.value || "";
+    const password = e.target.querySelector('input[type="password"]')?.value || "";
     
-    setUser({ 
-      id: "1", 
-      name: name, 
-      email: email,
-      isAdmin: email.includes("admin") 
-    });
+    // Check staff first (Admin + Teachers)
+    const staffMembers = JSON.parse(localStorage.getItem("m_staff") || "[]");
+    const staffMatch = staffMembers.find((s: any) => s.email === email && s.password === password);
     
-    if (email.includes("admin")) {
-      navigate("/admin");
-    } else {
-      navigate("/dashboard");
+    if (staffMatch) {
+      const userData = { 
+        ...staffMatch,
+        isAdmin: staffMatch.role === "Administrateur",
+        isTeacher: staffMatch.role === "Enseignant"
+      };
+      setUser(userData);
+      if (userData.isAdmin) navigate("/admin");
+      else if (userData.isTeacher) navigate("/teacher");
+      return;
     }
+
+    // Check students
+    const students = JSON.parse(localStorage.getItem("m_users") || "[]");
+    const studentMatch = students.find((s: any) => s.email === email && s.password === password && s.status === "Actif");
+    
+    if (studentMatch) {
+      setUser({ ...studentMatch, isAdmin: false, isTeacher: false });
+      navigate("/dashboard");
+      return;
+    }
+
+    // Default admin fallback for demo
+    if (email === "fatma@uvt.tn" && password === "123") {
+       setUser({ id: "fatma", name: "Fatma K.", email, isAdmin: true });
+       navigate("/admin");
+       return;
+    }
+
+    if (email.includes("admin") && password === "admin") {
+      setUser({ id: "admin", name: "Admin", email, isAdmin: true });
+      navigate("/admin");
+      return;
+    }
+
+    // Default student logic
+    setUser({ 
+      id: Date.now().toString(), 
+      name: email.split('@')[0], 
+      email: email,
+      isStudent: true
+    });
+    navigate("/dashboard");
   };
 
   const handleLogoChange = (newLogo: string) => {
@@ -486,29 +751,105 @@ function AppContent() {
             </div>
           } />
           <Route path="/register" element={
-            <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-3xl shadow-sm border border-slate-100 text-center">
-              <h1 className="text-3xl font-bold mb-4">Créer un compte</h1>
-              <p className="text-slate-500 mb-8 italic">Rejoignez Merkez Allimni aujourd'hui.</p>
-              <form onSubmit={handleLogin} className="space-y-4 text-left">
-                <div>
-                  <label className="block text-sm font-medium mb-1 capitalize">nom complet</label>
-                  <input type="text" required className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200" placeholder="Prénom Nom" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 capitalize">email</label>
-                  <input type="email" required className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200" placeholder="vous@exemple.com" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 capitalize">mot de passe</label>
-                  <input type="password" required className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200" placeholder="••••••••" />
-                </div>
-                <Button type="submit" className="w-full py-4 text-lg mt-4">S'inscrire</Button>
-              </form>
+            <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-[40px] shadow-sm border border-slate-100 text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16" />
+              
+              <AnimatePresence mode="wait">
+                {(() => {
+                  const [isRegistered, setIsRegistered] = useState(false);
+                  
+                  const handleRegister = (e: any) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const newUser = {
+                      id: Date.now(),
+                      name: formData.get("fullname"),
+                      email: formData.get("email"),
+                      password: "", // Assigned by admin after payment
+                      phone: formData.get("phone"),
+                      role: formData.get("session"),
+                      status: "En attente",
+                      date: new Date().toLocaleDateString("fr-FR")
+                    };
+
+                    // Enregistrer pour l'administration (Key: m_users)
+                    const existingUsers = JSON.parse(localStorage.getItem("m_users") || "[]");
+                    localStorage.setItem("m_users", JSON.stringify([...existingUsers, newUser]));
+                    
+                    setIsRegistered(true);
+                  };
+
+                  if (isRegistered) {
+                    return (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="py-12"
+                      >
+                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-100/50">
+                           <ShieldCheck size={40} />
+                        </div>
+                        <h2 className="text-2xl font-black mb-4 uppercase tracking-tighter">Félicitations !</h2>
+                        <p className="text-slate-600 italic px-4">" Votre inscription a été enregistrée, notre équipe vous contactera dans les plus brefs délais "</p>
+                        <Button 
+                          onClick={() => navigate("/")} 
+                          className="mt-10 bg-black text-white px-10 rounded-2xl h-14"
+                        >
+                          Retour à l'accueil
+                        </Button>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <h1 className="text-3xl font-black mb-2 uppercase tracking-tighter">S'inscrire</h1>
+                      <p className="text-slate-500 mb-8 italic">Rejoignez Merkez Allimni dès aujourd'hui.</p>
+                      
+                      <form onSubmit={handleRegister} className="space-y-4 text-left">
+                        <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nom & Prénom</label>
+                          <input name="fullname" type="text" required className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all" placeholder="Prénom Nom" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Adresse Email</label>
+                          <input name="email" type="email" required className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all" placeholder="vous@exemple.com" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Numéro de Téléphone</label>
+                          <input name="phone" type="tel" required className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all" placeholder="+216 -- --- ---" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Type de Session</label>
+                          <select name="session" required className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all appearance-none cursor-pointer">
+                             <option value="Session Enfant">Session pour Enfant</option>
+                             <option value="Session Femme">Session pour Femme</option>
+                             <option value="Orthophonie">Orthophonie</option>
+                          </select>
+                        </div>
+                        <Button type="submit" className="w-full py-5 text-lg mt-6 shadow-xl shadow-primary/20">Envoyer l'inscription</Button>
+                        <p className="text-center text-xs text-slate-400 mt-4">
+                          Déjà un compte ? <Link to="/login" className="text-primary font-bold hover:underline">Se connecter</Link>
+                        </p>
+                      </form>
+                    </motion.div>
+                  );
+                })()}
+              </AnimatePresence>
             </div>
           } />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/tarifs" element={<LandingPage />} />
-          <Route path="/admin" element={<AdminDashboard onLogoChange={handleLogoChange} />} />
+          <Route path="/admin" element={
+            user?.isAdmin ? <AdminDashboard onLogoChange={handleLogoChange} /> : <div className="p-20 text-center">Chargement...</div>
+          } />
+          <Route path="/teacher" element={
+            user?.isTeacher ? <TeacherDashboard user={user} /> : <div className="p-20 text-center">Chargement...</div>
+          } />
           <Route path="/chat" element={
             <div className="h-[calc(100vh-80px)] p-8 flex items-center justify-center bg-slate-100">
                <ChatRoom user={user} />
@@ -531,16 +872,15 @@ function AppContent() {
             <div className="font-bold mb-6 text-lg">Liens Rapides</div>
             <ul className="space-y-4 text-slate-400">
               <li><Link to="/" className="hover:text-primary transition-colors">Accueil</Link></li>
-              <li><Link to="/documents" className="hover:text-primary transition-colors">Documents</Link></li>
               <li><Link to="/tarifs" className="hover:text-primary transition-colors">Tarifs</Link></li>
             </ul>
           </div>
           <div>
             <div className="font-bold mb-6 text-lg">Contact</div>
             <ul className="space-y-4 text-slate-400">
-              <li>contact@merkez-allimni.com</li>
-              <li>+33 1 23 45 67 89</li>
-              <li className="text-primary italic">www.Merkez-allimni.com</li>
+              <li>{JSON.parse(localStorage.getItem("m_contact") || '{}')?.email || "contact@merkez.tn"}</li>
+              <li>{JSON.parse(localStorage.getItem("m_contact") || '{}')?.phone || "+216 22 000 000"}</li>
+              <li className="text-primary italic">{JSON.parse(localStorage.getItem("m_contact") || '{}')?.address || "Tunis, Tunisie"}</li>
             </ul>
           </div>
         </div>
