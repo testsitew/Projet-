@@ -1,177 +1,234 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centre Allimni - Formation Professionnelle Certifiante</title>
-    <meta name="description" content="Centre de formation allimni agréé. Cours certifiants, accompagnement personnalisé et insertion professionnelle garantie.">
+    <title>Centre Allimni - Formation Professionnelle</title>
+    <meta name="description" content="Centre de formation allimni agréé. Formations certifiantes en informatique, comptabilité et plus.">
     
-    <!-- SEO Open Graph -->
-    <meta property="og:title" content="Centre Allimni - Formation Certifiante">
-    <meta property="og:description" content="Devenez expert avec nos formations reconnues">
-    <meta property="og:image" content="./images/hero.webp">
-    <meta property="og:url" content="https://testsitew.github.io/merkezallimni/">
+    <!-- SEO -->
+    <meta name="keywords" content="formation, allimni, informatique, comptabilité, certification">
+    <meta property="og:title" content="Centre Allimni">
+    <meta property="og:description" content="Centre de formation professionnelle certifiante">
     
-    <!-- PWA -->
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
-    
-    <!-- Préchargement -->
-    <link rel="preload" href="./styles.css" as="style">
-    <link rel="preload" href="./script.js" as="script">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     
     <style>
-        :root{--primary:#2563eb;--secondary:#64748b;--success:#10b981;--bg:#f8fafc;--text:#1e293b;--white:#ffffff;--shadow:"0 1px 3px rgba(0,0,0,0.1)"}
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{font-size:16px;scroll-behavior:smooth}body{font-family:system-ui,-apple-system,sans-serif;line-height:1.6;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
-        img{max-width:100%;height:auto;display:block}.container{max-width:1200px;margin:0 auto;padding:0 1rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-        /* Loading critique */
-        .hero{background:linear-gradient(135deg,var(--primary),#3b82f6);color:var(--white);padding:4rem 0;text-align:center;position:relative;overflow:hidden}
-        .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.1);z-index:1}
-        .hero-content{position:relative;z-index:2;max-width:800px;margin:0 auto;padding:0 1rem}
-        .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 2rem;border-radius:0.5rem;font-weight:600;text-decoration:none;transition:all 0.2s ease;min-height:44px;cursor:pointer;border:none;font-size:1rem}
-        .btn-primary{background:var(--primary);color:var(--white);box-shadow:var(--shadow)}.btn-primary:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,0.4)}
-        .btn-secondary{background:transparent;color:var(--white);border:2px solid var(--white)}.btn-secondary:hover{background:var(--white);color:var(--primary)}
-        header{background:var(--white);box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
-        nav{padding:1rem 0;display:flex;justify-content:space-between;align-items:center}
-        .logo{font-size:1.5rem;font-weight:700;color:var(--primary)}
-        .nav-menu{display:flex;gap:2rem;list-style:none;align-items:center}
-        .nav-menu a{color:var(--text);text-decoration:none;font-weight:500;transition:color 0.2s}
-        .nav-menu a:hover{color:var(--primary)}
-        .menu-toggle{display:none;flex-direction:column;width:30px;height:20px;cursor:pointer;gap:4px}
-        .menu-toggle span{height:3px;width:100%;background:var(--primary);border-radius:2px;transition:0.2s}
-        main{padding:2rem 0}
-        .section{padding:4rem 0}
-        .section-title{text-align:center;font-size:2.5rem;font-weight:700;margin-bottom:1rem;color:var(--text)}
-        .section-subtitle{text-align:center;color:var(--secondary);margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto}
-        .grid{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-        .card{background:var(--white);border-radius:1rem;padding:2rem;box-shadow:var(--shadow);transition:transform 0.2s,box-shadow 0.2s}
-        .card:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(0,0,0,0.1)}
-        .card-icon{font-size:3rem;color:var(--primary);margin-bottom:1rem}
-        .card-title{font-size:1.25rem;font-weight:700;margin-bottom:0.5rem}
-        form{max-width:500px;margin:0 auto;display:grid;gap:1rem}
-        .form-group{display:flex;flex-direction:column}
-        label{font-weight:600;margin-bottom:0.5rem;color:var(--text)}
-        input,textarea{padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;transition:border-color 0.2s;font-family:inherit}
-        input:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-        footer{background:var(--text);color:var(--white);padding:3rem 0 1rem;text-align:center}
-        @media (max-width:768px){.menu-toggle{display:flex}.nav-menu{position:fixed;top:70px;left:0;right:0;background:var(--white);flex-direction:column;padding:2rem;gap:1rem;box-shadow:var(--shadow);transform:translateY(-100%);opacity:0;transition:all 0.3s}.nav-menu.open{transform:translateY(0);opacity:1}.hero{padding:2rem 0}.section{padding:2rem 0}.section-title{font-size:2rem}}
-        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
+        :root{--primary:#007BFF;--dark:#1a1a1a;--light:#f8f9fa;--success:#28a745;--gray:#6c757d}
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:var(--dark);background:var(--light)}
+        
+        /* Header */
+        header{position:fixed;top:0;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);z-index:1000;box-shadow:0 2px 20px rgba(0,0,0,0.1);padding:1rem 0}
+        .nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+        .logo{font-size:1.8rem;font-weight:bold;color:var(--primary)}
+        .nav-links{display:flex;list-style:none;gap:2rem}
+        .nav-links a{color:var(--dark);text-decoration:none;font-weight:500;transition:all 0.3s}
+        .nav-links a:hover{color:var(--primary)}
+        .hamburger{display:none;flex-direction:column;cursor:pointer}
+        .hamburger span{width:25px;height:3px;background:var(--primary);margin:3px 0;transition:0.3s}
+        
+        /* Hero */
+        .hero{min-height:100vh;background:linear-gradient(135deg,#007BFF 0%,#0056b3 100%);display:flex;align-items:center;justify-content:center;text-align:center;color:white;padding:0 20px;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1.5" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.8" fill="white" opacity="0.15"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat}
+        .hero-content{max-width:800px}
+        .hero h1{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:1rem;font-weight:700}
+        .hero p{font-size:1.3rem;margin-bottom:2rem;opacity:0.95}
+        .cta-button{padding:15px 40px;background:var(--primary);color:white;border:none;border-radius:50px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 10px 30px rgba(0,123,255,0.4)}
+        .cta-button:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(0,123,255,0.5)}
+        
+        /* Sections */
+        .section{padding:80px 20px;max-width:1200px;margin:0 auto}
+        .section-title{text-align:center;font-size:2.5rem;margin-bottom:1rem;color:var(--dark)}
+        .section-subtitle{text-align:center;color:var(--gray);font-size:1.2rem;margin-bottom:4rem;max-width:600px;margin-left:auto;margin-right:auto}
+        
+        /* Services */
+        .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:3rem}
+        .service-card{background:white;border-radius:20px;padding:2.5rem;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.1);transition:all 0.3s}
+        .service-card:hover{transform:translateY(-10px);box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+        .service-icon{font-size:4rem;margin-bottom:1.5rem}
+        .service-card h3{font-size:1.5rem;margin-bottom:1rem;color:var(--dark)}
+        .service-card p{color:var(--gray)}
+        
+        /* Contact */
+        .contact{background:var(--primary);color:white;border-radius:20px;padding:3rem;margin-top:3rem}
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+        .contact-info h3{font-size:1.8rem;margin-bottom:1.5rem}
+        .contact-item{margin-bottom:1rem}
+        .contact-item strong{display:block;font-size:1.1rem}
+        form{display:flex;flex-direction:column;gap:1.5rem}
+        input,textarea{padding:15px;border:none;border-radius:10px;font-size:1rem;font-family:inherit}
+        input:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
+        button{background:white;color:var(--primary);border:none;padding:15px 30px;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s;align-self:start}
+        button:hover{background:#f8f9fa}
+        
+        /* Footer */
+        footer{background:var(--dark);color:white;padding:3rem 20px 1rem;text-align:center}
+        .footer-content{max-width:1200px;margin:0 auto}
+        .social-links{margin:2rem 0;gap:1rem;justify-content:center}
+        .social-links a{color:white;font-size:1.5rem;transition:0.3s}
+        .social-links a:hover{color:var(--primary);transform:translateY(-3px)}
+        
+        /* Responsive */
+        @media (max-width:768px){
+            .hamburger{display:flex}
+            .nav-links{display:none}
+            .hero h1{font-size:2rem}
+            .hero p{font-size:1.1rem}
+            .contact-grid{grid-template-columns:1fr;gap:2rem}
+            .section{padding:60px 20px}
+        }
+        
+        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header role="banner">
-        <nav class="container" role="navigation" aria-label="Navigation principale">
-            <a href="#home" class="logo" aria-label="Centre Allimni">Centre Allimni</a>
-            <ul class="nav-menu">
-                <li><a href="#home">Accueil</a></li>
-                <li><a href="#formations">Formations</a></li>
-                <li><a href="#apropos">À propos</a></li>
+    <header>
+        <nav class="nav-container">
+            <div class="logo">Centre Allimni</div>
+            <ul class="nav-links">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#services">Services</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <button class="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+            <div class="hamburger">
                 <span></span><span></span><span></span>
-            </button>
+            </div>
         </nav>
     </header>
 
     <!-- Hero -->
-    <section id="home" class="hero">
+    <section id="accueil" class="hero">
         <div class="hero-content">
-            <h1>Devenez <strong>Expert Certifié</strong></h1>
-            <p class="section-subtitle">Formations professionnelles reconnues avec accompagnement personnalisé et garantie d'insertion</p>
-            <div class="hero-buttons" style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
-                <a href="#formations" class="btn btn-primary">Voir nos formations</a>
-                <a href="#contact" class="btn btn-secondary">Prendre RDV</a>
+            <h1>Bienvenue au Centre Allimni</h1>
+            <p>Votre centre de formation professionnelle agréé pour un avenir brillant</p>
+            <button class="cta-button" onclick="scrollToContact()">Commencer ma formation</button>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section">
+        <h2 class="section-title">Nos Formations</h2>
+        <p class="section-subtitle">Des programmes certifiants adaptés au marché du travail</p>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">💻</div>
+                <h3>Developpement Web</h3>
+                <p>HTML, CSS, JavaScript, React - Certification complète</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">📊</div>
+                <h3>Comptabilité</h3>
+                <p>Comptabilité générale, fiscalité, gestion - Diplôme officiel</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🔧</div>
+                <h3>Réseaux & Sécurité</h3>
+                <p>CCNA, cybersecurity, administration systèmes</p>
             </div>
         </div>
     </section>
 
-    <!-- Formations -->
-    <main>
-        <section id="formations" class="section container">
-            <h2 class="section-title">Nos Formations Phares</h2>
-            <p class="section-subtitle">Choisissez parmi nos programmes certifiants les plus demandés</p>
-            <div class="grid">
-                <article class="card" role="article">
-                    <div class="card-icon">📚</div>
-                    <h3 class="card-title">Développeur Web</h3>
-                    <p>HTML, CSS, JavaScript, React - 6 mois intensif</p>
-                    <strong>€2,500</strong>
-                </article>
-                <article class="card" role="article">
-                    <div class="card-icon">💻</div>
-                    <h3 class="card-title">Data Analyst</h3>
-                    <p>Python, SQL, Power BI - Certification officielle</p>
-                    <strong>€3,200</strong>
-                </article>
-                <article class="card" role="article">
-                    <div class="card-icon">🎨</div>
-                    <h3 class="card-title">UX/UI Design</h3>
-                    <p>Figma, Adobe XD - Portfolio professionnel</p>
-                    <strong>€2,800</strong>
-                </article>
+    <!-- Contact -->
+    <section class="section">
+        <div class="contact">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Contactez-nous</h3>
+                    <div class="contact-item">
+                        <strong>📍 Adresse:</strong> Centre Allimni, [Votre ville]
+                    </div>
+                    <div class="contact-item">
+                        <strong>📞 Téléphone:</strong> +212 XXX XXX XXX
+                    </div>
+                    <div class="contact-item">
+                        <strong>✉️ Email:</strong> contact@allimni.ma
+                    </div>
+                    <div class="contact-item">
+                        <strong>🕒 Horaires:</strong> Lun-Ven 9h-18h
+                    </div>
+                </div>
+                
+                <form id="contactForm">
+                    <input type="text" placeholder="Votre nom" required>
+                    <input type="email" placeholder="Votre email" required>
+                    <input type="tel" placeholder="Votre téléphone">
+                    <textarea placeholder="Votre message..." rows="5"></textarea>
+                    <button type="submit">Envoyer le message</button>
+                </form>
             </div>
-        </section>
-
-        <section id="apropos" class="section" style="background:var(--white)">
-            <div class="container">
-                <h2 class="section-title">Pourquoi choisir Allimni ?</h2>
-                <div class="grid">
-                    <div class="card">
-                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">✅</div>
-                        <h3>Certifications Reconnues</h3>
-                        <p>Diplômes officiels acceptés par les employeurs</p>
-                    </div>
-                    <div class="card">
-                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">👨‍🏫</div>
-                        <h3>Formateurs Experts</h3>
-                        <p>Professionnels en activité avec +10 ans d'expérience</p>
-                    </div>
-                    <div class="card">
-                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">💼</div>
-                        <h3>95% d'Insertion</h3>
-                        <p>Placement garanti ou remboursement</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact -->
-        <section id="contact" class="section container">
-            <h2 class="section-title">Prenez Contact</h2>
-            <p class="section-subtitle">Réservez votre session d'information gratuite</p>
-            <form novalidate aria-labelledby="contact-title">
-                <div class="form-group">
-                    <label for="name">Nom complet</label>
-                    <input type="text" id="name" name="name" required aria-required="true">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required aria-required="true">
-                </div>
-                <div class="form-group">
-                    <label for="phone">Téléphone</label>
-                    <input type="tel" id="phone" name="phone">
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="5" placeholder="Quelle formation vous intéresse ?"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" style="justify-self:start">Envoyer</button>
-            </form>
-        </section>
-    </main>
+        </div>
+    </section>
 
     <!-- Footer -->
-    <footer role="contentinfo">
-        <div class="container">
-            <p>&copy; 2024 Centre Allimni. Tous droits réservés.</p>
-            <p><a href="#privacy" style="color:#94a3b8">Politique de confidentialité</a> | <a href="#terms" style="color:#94a3b8">Conditions d'utilisation</a></p>
+    <footer>
+        <div class="footer-content">
+            <h3>Centre Allimni</h3>
+            <p>Formation professionnelle de qualité depuis 2020</p>
+            <div class="social-links" style="display:flex">
+                <a href="#">📘</a>
+                <a href="#">📱</a>
+                <a href="#">📧</a>
+            </div>
+            <p style="margin-top:2rem;font-size:0.9rem;color:#888">© 2024 Centre Allimni. Tous droits réservés.</p>
         </div>
     </footer>
 
-    <script src="./script.js"></script>
+    <script>
+        // Menu mobile
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+        
+        // Smooth scroll
+        function scrollToContact() {
+            document.querySelector('.contact').scrollIntoView({behavior: 'smooth'});
+        }
+        
+        // Form submit
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            const originalText = button.textContent;
+            
+            button.textContent = 'Envoi...';
+            button.disabled = true;
+            
+            // Simulation (remplace par ton API)
+            await new Promise(r => setTimeout(r, 2000));
+            
+            alert('✅ Message envoyé ! Merci pour votre intérêt.');
+            e.target.reset();
+            button.textContent = originalText;
+            button.disabled = false;
+        });
+        
+        // Active nav link
+        window.addEventListener('scroll', () => {
+            const sections = ['#accueil', '#services'];
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const el = document.querySelector(section);
+                if (el.getBoundingClientRect().top < 100) {
+                    current = section;
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
