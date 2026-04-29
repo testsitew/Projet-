@@ -1,13 +1,177 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centre Allimni - Formation Professionnelle Certifiante</title>
+    <meta name="description" content="Centre de formation allimni agréé. Cours certifiants, accompagnement personnalisé et insertion professionnelle garantie.">
+    
+    <!-- SEO Open Graph -->
+    <meta property="og:title" content="Centre Allimni - Formation Certifiante">
+    <meta property="og:description" content="Devenez expert avec nos formations reconnues">
+    <meta property="og:image" content="./images/hero.webp">
+    <meta property="og:url" content="https://testsitew.github.io/merkezallimni/">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    
+    <!-- Préchargement -->
+    <link rel="preload" href="./styles.css" as="style">
+    <link rel="preload" href="./script.js" as="script">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <style>
+        :root{--primary:#2563eb;--secondary:#64748b;--success:#10b981;--bg:#f8fafc;--text:#1e293b;--white:#ffffff;--shadow:"0 1px 3px rgba(0,0,0,0.1)"}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{font-size:16px;scroll-behavior:smooth}body{font-family:system-ui,-apple-system,sans-serif;line-height:1.6;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+        img{max-width:100%;height:auto;display:block}.container{max-width:1200px;margin:0 auto;padding:0 1rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        /* Loading critique */
+        .hero{background:linear-gradient(135deg,var(--primary),#3b82f6);color:var(--white);padding:4rem 0;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.1);z-index:1}
+        .hero-content{position:relative;z-index:2;max-width:800px;margin:0 auto;padding:0 1rem}
+        .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.875rem 2rem;border-radius:0.5rem;font-weight:600;text-decoration:none;transition:all 0.2s ease;min-height:44px;cursor:pointer;border:none;font-size:1rem}
+        .btn-primary{background:var(--primary);color:var(--white);box-shadow:var(--shadow)}.btn-primary:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,0.4)}
+        .btn-secondary{background:transparent;color:var(--white);border:2px solid var(--white)}.btn-secondary:hover{background:var(--white);color:var(--primary)}
+        header{background:var(--white);box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+        nav{padding:1rem 0;display:flex;justify-content:space-between;align-items:center}
+        .logo{font-size:1.5rem;font-weight:700;color:var(--primary)}
+        .nav-menu{display:flex;gap:2rem;list-style:none;align-items:center}
+        .nav-menu a{color:var(--text);text-decoration:none;font-weight:500;transition:color 0.2s}
+        .nav-menu a:hover{color:var(--primary)}
+        .menu-toggle{display:none;flex-direction:column;width:30px;height:20px;cursor:pointer;gap:4px}
+        .menu-toggle span{height:3px;width:100%;background:var(--primary);border-radius:2px;transition:0.2s}
+        main{padding:2rem 0}
+        .section{padding:4rem 0}
+        .section-title{text-align:center;font-size:2.5rem;font-weight:700;margin-bottom:1rem;color:var(--text)}
+        .section-subtitle{text-align:center;color:var(--secondary);margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto}
+        .grid{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+        .card{background:var(--white);border-radius:1rem;padding:2rem;box-shadow:var(--shadow);transition:transform 0.2s,box-shadow 0.2s}
+        .card:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(0,0,0,0.1)}
+        .card-icon{font-size:3rem;color:var(--primary);margin-bottom:1rem}
+        .card-title{font-size:1.25rem;font-weight:700;margin-bottom:0.5rem}
+        form{max-width:500px;margin:0 auto;display:grid;gap:1rem}
+        .form-group{display:flex;flex-direction:column}
+        label{font-weight:600;margin-bottom:0.5rem;color:var(--text)}
+        input,textarea{padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;transition:border-color 0.2s;font-family:inherit}
+        input:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+        footer{background:var(--text);color:var(--white);padding:3rem 0 1rem;text-align:center}
+        @media (max-width:768px){.menu-toggle{display:flex}.nav-menu{position:fixed;top:70px;left:0;right:0;background:var(--white);flex-direction:column;padding:2rem;gap:1rem;box-shadow:var(--shadow);transform:translateY(-100%);opacity:0;transition:all 0.3s}.nav-menu.open{transform:translateY(0);opacity:1}.hero{padding:2rem 0}.section{padding:2rem 0}.section-title{font-size:2rem}}
+        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header role="banner">
+        <nav class="container" role="navigation" aria-label="Navigation principale">
+            <a href="#home" class="logo" aria-label="Centre Allimni">Centre Allimni</a>
+            <ul class="nav-menu">
+                <li><a href="#home">Accueil</a></li>
+                <li><a href="#formations">Formations</a></li>
+                <li><a href="#apropos">À propos</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
 
+    <!-- Hero -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Devenez <strong>Expert Certifié</strong></h1>
+            <p class="section-subtitle">Formations professionnelles reconnues avec accompagnement personnalisé et garantie d'insertion</p>
+            <div class="hero-buttons" style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+                <a href="#formations" class="btn btn-primary">Voir nos formations</a>
+                <a href="#contact" class="btn btn-secondary">Prendre RDV</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formations -->
+    <main>
+        <section id="formations" class="section container">
+            <h2 class="section-title">Nos Formations Phares</h2>
+            <p class="section-subtitle">Choisissez parmi nos programmes certifiants les plus demandés</p>
+            <div class="grid">
+                <article class="card" role="article">
+                    <div class="card-icon">📚</div>
+                    <h3 class="card-title">Développeur Web</h3>
+                    <p>HTML, CSS, JavaScript, React - 6 mois intensif</p>
+                    <strong>€2,500</strong>
+                </article>
+                <article class="card" role="article">
+                    <div class="card-icon">💻</div>
+                    <h3 class="card-title">Data Analyst</h3>
+                    <p>Python, SQL, Power BI - Certification officielle</p>
+                    <strong>€3,200</strong>
+                </article>
+                <article class="card" role="article">
+                    <div class="card-icon">🎨</div>
+                    <h3 class="card-title">UX/UI Design</h3>
+                    <p>Figma, Adobe XD - Portfolio professionnel</p>
+                    <strong>€2,800</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="apropos" class="section" style="background:var(--white)">
+            <div class="container">
+                <h2 class="section-title">Pourquoi choisir Allimni ?</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">✅</div>
+                        <h3>Certifications Reconnues</h3>
+                        <p>Diplômes officiels acceptés par les employeurs</p>
+                    </div>
+                    <div class="card">
+                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">👨‍🏫</div>
+                        <h3>Formateurs Experts</h3>
+                        <p>Professionnels en activité avec +10 ans d'expérience</p>
+                    </div>
+                    <div class="card">
+                        <div style="font-size:3rem;color:var(--success);margin-bottom:1rem">💼</div>
+                        <h3>95% d'Insertion</h3>
+                        <p>Placement garanti ou remboursement</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section id="contact" class="section container">
+            <h2 class="section-title">Prenez Contact</h2>
+            <p class="section-subtitle">Réservez votre session d'information gratuite</p>
+            <form novalidate aria-labelledby="contact-title">
+                <div class="form-group">
+                    <label for="name">Nom complet</label>
+                    <input type="text" id="name" name="name" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Quelle formation vous intéresse ?"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="justify-self:start">Envoyer</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="container">
+            <p>&copy; 2024 Centre Allimni. Tous droits réservés.</p>
+            <p><a href="#privacy" style="color:#94a3b8">Politique de confidentialité</a> | <a href="#terms" style="color:#94a3b8">Conditions d'utilisation</a></p>
+        </div>
+    </footer>
+
+    <script src="./script.js"></script>
+</body>
+</html>
