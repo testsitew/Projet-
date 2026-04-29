@@ -1,0 +1,16 @@
+{
+    "name": "Centre Allimni",
+    "short_name": "Allimni",
+    "description": "Centre de formation professionnelle",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#2563eb",
+    "icons": [
+        {
+            "src": "./images/favicon.ico",
+            "sizes": "64x64",
+            "type": "image/x-icon"
+        }
+    ]
+}
